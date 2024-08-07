@@ -15,7 +15,7 @@ tool_prompt = """From the list of tools below:
 
 
 class ChatGPTSession(ChatSession):
-    api_url: HttpUrl = "https://api.openai.com/v1/chat/completions"
+    api_url: HttpUrl = "https://xiaoai.plus/v1/chat/completions"
     input_fields: Set[str] = {"role", "content", "name"}
     system: str = "You are a helpful assistant."
     params: Dict[str, Any] = {"temperature": 0.7}

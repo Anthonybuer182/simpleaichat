@@ -22,7 +22,7 @@ ARGS = parser.parse_args()
 def interactive_chat():
     gpt_api_key = os.getenv("OPENAI_API_KEY")
     if not gpt_api_key:
-        gpt_api_key = getpass("Input your OpenAI key here: ")
+        gpt_api_key = getpass("sk-Ee1imTXK7hDwDM1aFa0337029aD8421bA27882E038CbA163")
     assert gpt_api_key, "An API key was not defined."
     _ = AIChat(ARGS.character, ARGS.character_command, ARGS.prime)
 

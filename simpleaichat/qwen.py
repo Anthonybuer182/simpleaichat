@@ -8,7 +8,7 @@ from .utils import remove_a_key
 # 定义 QwenSession 类，继承自 ChatSession
 class QwenSession(ChatSession):
     # 设置 API URL
-    api_url: HttpUrl = "https://api.qwen.ai/v1/chat/completions"
+    api_url: HttpUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     # 定义输入字段
     input_fields: set = {"role", "content", "name"}
     # 系统消息的默认内容

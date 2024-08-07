@@ -63,7 +63,7 @@ class AIChat(BaseModel):
         **kwargs,
     ) -> Optional[ChatGPTSession]:
         if "model" not in kwargs:  # set default
-            kwargs["model"] = "gpt-3.5-turbo"
+            kwargs["model"] = "gpt-3.5-turbo-0125"
         # TODO: Add support for more models (PaLM, Claude)
         if "gpt-" in kwargs["model"]:
             gpt_api_key = kwargs.get("api_key") or os.getenv("OPENAI_API_KEY")
