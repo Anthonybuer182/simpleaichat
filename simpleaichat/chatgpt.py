@@ -18,11 +18,11 @@ class ChatGPTSession(ChatSession):
     '''
         https://xiaoai.plus/v1/chat/completions
         sk-Ee1imTXK7hDwDM1aFa0337029aD8421bA27882E038CbA163
-        
+
         https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
         sk-1226bc6e75f94b3cba8d8c81dcc8d6f3
     '''
-    api_url: HttpUrl = "https://xiaoai.plus/v1/chat/completions"
+    api_url: HttpUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions"
     input_fields: Set[str] = {"role", "content", "name"}
     system: str = "You are a helpful assistant."
     params: Dict[str, Any] = {"temperature": 0.7}
