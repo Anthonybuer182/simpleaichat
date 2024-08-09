@@ -12,6 +12,7 @@ from httpx import AsyncClient, Client
 from pydantic import BaseModel
 from rich.console import Console
 
+from .qwengpt import ChatQwenSession
 from .chatgpt import ChatGPTSession
 from .models import ChatMessage, ChatSession
 from .utils import wikipedia_search_lookup
@@ -65,7 +66,8 @@ class AIChat(BaseModel):
         if "model" not in kwargs:  # set default
             kwargs["model"] = "gpt-3.5-turbo-0125"
         # TODO: Add support for more models (PaLM, Claude)
-        if "gpt-" in kwargs["model"]:
+        model=kwargs["model"]
+        if "gpt-" in model:
             gpt_api_key = kwargs.get("api_key") or os.getenv("OPENAI_API_KEY")
             assert gpt_api_key, f"An API key for {kwargs['model'] } was not defined."
             sess = ChatGPTSession(
@@ -74,7 +76,15 @@ class AIChat(BaseModel):
                 },
                 **kwargs,
             )
-
+        elif "qwen" in model:
+            qwen_api_key = kwargs.get("api_key") or os.getenv("QWEN_API_KEY")
+            assert qwen_api_key, f"An API key for {model} was not defined."
+            sess = ChatQwenSession(
+                auth={
+                "api_key": qwen_api_key,
+                },
+                **kwargs,
+            )
         if return_session:
             return sess
         else:
