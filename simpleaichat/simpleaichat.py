@@ -68,7 +68,7 @@ class AIChat(BaseModel):
         # TODO: Add support for more models (PaLM, Claude)
         model=kwargs["model"]
         if "gpt-" in model:
-            gpt_api_key = kwargs.get("api_key") or os.getenv("OPENAI_API_KEY")
+            gpt_api_key = kwargs.get("api_key") or os.getenv("API_KEY")
             assert gpt_api_key, f"An API key for {kwargs['model'] } was not defined."
             sess = ChatGPTSession(
                 auth={
@@ -77,7 +77,7 @@ class AIChat(BaseModel):
                 **kwargs,
             )
         elif "qwen" in model:
-            qwen_api_key = kwargs.get("api_key") or os.getenv("QWEN_API_KEY")
+            qwen_api_key = kwargs.get("api_key") or os.getenv("API_KEY")
             assert qwen_api_key, f"An API key for {model} was not defined."
             sess = ChatQwenSession(
                 auth={
