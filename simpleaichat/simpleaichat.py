@@ -15,8 +15,7 @@ from rich.console import Console
 from .qwengpt import ChatQwenSession
 from .chatgpt import ChatGPTSession
 from .models import ChatMessage, ChatSession
-from .utils import wikipedia_search_lookup
-
+from .utils import wikipedia_search_lookup,sync_client,async_client
 load_dotenv()
 
 
@@ -36,7 +35,8 @@ class AIChat(BaseModel):
         console: bool = True,
         **kwargs,
     ):
-        client = Client(proxies=os.getenv("https_proxy"))
+        # client = Client(proxies=os.getenv("https_proxy"))
+        client = sync_client()
         system_format = self.build_system(character, character_command, system)
 
         sessions = {}
@@ -52,7 +52,7 @@ class AIChat(BaseModel):
         super().__init__(
             client=client, default_session=new_default_session, sessions=sessions
         )
-
+        # false and true
         if not system and console:
             character = "ChatGPT" if not character else character
             new_default_session.title = character
@@ -348,7 +348,8 @@ class AsyncAIChat(AIChat):
     ) -> str:
         # TODO: move to a __post_init__ in Pydantic 2.0
         if isinstance(self.client, Client):
-            self.client = AsyncClient(proxies=os.getenv("https_proxy"))
+            # self.client = AsyncClient(proxies=os.getenv("https_proxy"))
+            self.client = async_client()
         sess = self.get_session(id)
         if tools:
             assert (input_schema is None) and (
@@ -387,7 +388,8 @@ class AsyncAIChat(AIChat):
     ) -> str:
         # TODO: move to a __post_init__ in Pydantic 2.0
         if isinstance(self.client, Client):
-            self.client = AsyncClient(proxies=os.getenv("https_proxy"))
+            # self.client = AsyncClient(proxies=os.getenv("https_proxy"))
+            self.client = async_client()
         sess = self.get_session(id)
         return sess.stream_async(
             prompt,

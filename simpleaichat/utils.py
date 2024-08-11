@@ -1,6 +1,6 @@
 import os
 from typing import List, Union
-
+import logging
 import httpx
 from pydantic import Field
 
@@ -18,7 +18,7 @@ def wikipedia_search(query: str, n: int = 1) -> Union[str, List[str]]:
         "srprop": "",
     }
 
-    r_search = httpx.get(WIKIPEDIA_API_URL, params=SEARCH_PARAMS)
+    r_search = sync_client().get(WIKIPEDIA_API_URL, params=SEARCH_PARAMS)
     results = [x["title"] for x in r_search.json()["query"]["search"]]
 
     return results[0] if n == 1 else results
@@ -36,7 +36,7 @@ def wikipedia_lookup(query: str, sentences: int = 1) -> str:
         "titles": query,
     }
 
-    r_lookup = httpx.get(WIKIPEDIA_API_URL, params=LOOKUP_PARAMS)
+    r_lookup = sync_client(proxy=False).get(WIKIPEDIA_API_URL, params=LOOKUP_PARAMS)
     return r_lookup.json()["query"]["pages"][0]["extract"]
 
 
@@ -55,7 +55,7 @@ async def wikipedia_search_async(query: str, n: int = 1) -> Union[str, List[str]
         "srprop": "",
     }
 
-    async with httpx.AsyncClient(proxies=os.getenv("https_proxy")) as client:
+    async with async_client() as client:
         r_search = await client.get(WIKIPEDIA_API_URL, params=SEARCH_PARAMS)
     results = [x["title"] for x in r_search.json()["query"]["search"]]
 
@@ -73,8 +73,8 @@ async def wikipedia_lookup_async(query: str, sentences: int = 1) -> str:
         "format": "json",
         "titles": query,
     }
-
-    async with httpx.AsyncClient(proxies=os.getenv("https_proxy")) as client:
+    # async with 异步请求需要释放资源
+    async with async_client() as client:
         r_lookup = await client.get(WIKIPEDIA_API_URL, params=LOOKUP_PARAMS)
     return r_lookup.json()["query"]["pages"][0]["extract"]
 
@@ -97,3 +97,49 @@ def remove_a_key(d, remove_key):
                 del d[key]
             else:
                 remove_a_key(d[key], remove_key)
+
+# 设置日志记录器
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    # format="%(asctime)s - %(levelname)s - %(message)s",
+    # datefmt="%Y-%m-%d %H:%M:%S"
+)
+
+def log_request(request: httpx.Request):
+    logger.info("------ Request ------")
+    # logger.info(f"Request: {request.method} {request.url}")
+    # logger.info(f"Request headers: {request.headers}")
+    if request.content:
+        logger.info(f"Request body: {request.content.decode()}")
+    else:
+        logger.info("Request body: No content")
+
+def log_response(response: httpx.Response):
+    logger.info("------ Response ------")
+    logger.info(f"Response {response.request.method} {response.request.url} - {response.status_code}")
+    # logger.info(f"Response headers: {response.headers}")
+    if response.stream:
+        content = response.read()
+    else:
+        content = response.text
+    body = content.decode(response.encoding or 'utf-8')
+    logger.info(f"Response body: {body}")
+
+def sync_client(proxy: bool = True) -> httpx.Client:
+    proxies = os.getenv("https_proxy") if proxy else None
+    return httpx.Client(
+        proxies=proxies,
+        event_hooks={
+            "request": [log_request],
+            "response": [log_response],
+        }
+    )
+def async_client(proxy: bool = True) -> httpx.AsyncClient:
+    proxies = os.getenv("https_proxy") if proxy else None
+    return httpx.AsyncClient(
+        proxies=proxies,
+        event_hooks={
+            "request": [log_request],
+            "response": [log_response],
+    })
