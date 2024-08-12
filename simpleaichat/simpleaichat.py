@@ -76,7 +76,7 @@ class AIChat(BaseModel):
                 },
                 **kwargs,
             )
-        elif "qwen" in model:
+        elif "qwen-" in model:
             qwen_api_key = kwargs.get("api_key") or os.getenv("API_KEY")
             assert qwen_api_key, f"An API key for {model} was not defined."
             sess = ChatQwenSession(
@@ -188,7 +188,8 @@ class AIChat(BaseModel):
             - NEVER speak in a formal tone.
             - Concisely introduce yourself first in character.
             """
-            prompt = character_prompt.format(wikipedia_search_lookup(character)).strip()
+            searchLookup=wikipedia_search_lookup(character)
+            prompt = character_prompt.format(searchLookup).strip()
             if character_command:
                 character_system = """
                 - {0}

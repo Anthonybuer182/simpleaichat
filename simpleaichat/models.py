@@ -59,6 +59,7 @@ class ChatSession(BaseModel):
     def format_input_messages(
         self, system_message: ChatMessage, user_message: ChatMessage
     ) -> list:
+        # 三木运算 提取末尾recent_messages条消息
         recent_messages = (
             self.messages[-self.recent_messages :]
             if self.recent_messages
