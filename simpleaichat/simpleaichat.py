@@ -4,7 +4,7 @@ import os
 from contextlib import asynccontextmanager, contextmanager
 from typing import Any, Dict, List, Optional, Union
 from uuid import UUID, uuid4
-
+from dateutil import tz
 import dateutil
 import orjson
 from dotenv import load_dotenv
@@ -293,7 +293,7 @@ class AIChat(BaseModel):
                     # need to convert the datetime back to UTC
                     local_datetime = datetime.datetime.strptime(
                         row["received_at"], "%Y-%m-%d %H:%M:%S"
-                    ).replace(tzinfo=dateutil.tz.tzlocal())
+                    ).replace(tzinfo=tz.tzlocal())
                     row["received_at"] = local_datetime.astimezone(
                         datetime.timezone.utc
                     )

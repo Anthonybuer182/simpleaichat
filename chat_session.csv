@@ -1,0 +1,3 @@
+role,content,received_at,prompt_length,completion_length,total_length,finish_reason
+user,What is the capital of California?,2024-08-14 17:26:37,,,,
+assistant,The capital of California is Sacramento.,2024-08-14 17:26:38,24,7,31,stop
