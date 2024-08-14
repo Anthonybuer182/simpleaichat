@@ -53,9 +53,10 @@ class ChatQwenSession(ChatSession):
             )
 
         gen_params = params or self.params
+        allMessages = self.format_input_messages(system_message, user_message)
         data = {
             "model": self.model,
-            "messages": self.format_input_messages(system_message, user_message),
+            "messages": allMessages,
             "stream": stream,
             **gen_params,
         }
