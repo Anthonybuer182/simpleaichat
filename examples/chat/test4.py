@@ -9,6 +9,6 @@ from simpleaichat.simpleaichat import *
 # ai.save_session()
 
 ai=AIChat(api_key="sk-1226bc6e75f94b3cba8d8c81dcc8d6f3", model="qwen-turbo",console=False)
-ai.load_session("chat_session.csv")
+ai.load_session("chat_session.csv",id=ai.get_session().id)
 response = ai("When was it founded?")
 print("second = " +response)

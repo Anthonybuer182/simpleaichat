@@ -301,8 +301,12 @@ class AIChat(BaseModel):
                     row = {k: (None if v == "" else v) for k, v in row.items()}
                     messages.append(ChatMessage(**row))
 
-            self.new_session(id=id, **kwargs)
+            # 不存在就创建新的session
+            if not self.sessions[id] :{
+                self.new_session(id=id, **kwargs)
+            }
             self.sessions[id].messages = messages
+            
 
         if input_path.endswith(".json"):
             with open(input_path, "rb") as f:
