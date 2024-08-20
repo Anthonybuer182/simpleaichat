@@ -111,7 +111,7 @@ def log_request(request: httpx.Request):
     # logger.info(f"Request: {request.method} {request.url}")
     # logger.info(f"Request headers: {request.headers}")
     if request.content:
-        logger.info(f"Request body: {request.content.decode()}")
+        logger.info(f"Request body: {request.content.decode().encode('utf-8').decode('unicode_escape')}")
     else:
         logger.info("Request body: No content")
 

@@ -5,12 +5,13 @@ from pydantic import BaseModel, Field
 from typing import List, Literal, Optional, Union
 import orjson
 from simpleaichat.simpleaichat.utils import fd
-
+from pydantic import ValidationError
+from rich.console import Console
 # gpt-3.5-turbo-0125
 # Ee1imTXK7hDwDM1aFa0337029aD8421bA27882E038CbA163
 
-model="gpt-3.5-turbo-0125"
-apy_key= "sk-Ee1imTXK7hDwDM1aFa0337029aD8421bA27882E038CbA163"
+model="qwen-turbo"
+api_key= "sk-1226bc6e75f94b3cba8d8c81dcc8d6f3"
 system_prompt = """您是世界知名的桌面角色扮演游戏（RPG）游戏大师（GM）。
 
 为用户提供的设置编写设置描述和两个字符表。
@@ -20,7 +21,7 @@ system_prompt = """您是世界知名的桌面角色扮演游戏（RPG）游戏�
 -您创建的所有名称必须具有创意且独特。总是颠覆期望。
 -在您的回复中包含尽可能多的信息。"""
 ai = AIChat(
-    api_key=apy_key,
+    api_key=api_key,
     console=False,
     save_messages=False,  # with schema I/O, messages are never saved
     model=model,
@@ -30,7 +31,7 @@ ai = AIChat(
 class player_character(BaseModel):
     name: str = Field(description="角色名")
     race: str = Field(description="角色种族")
-    job: str = Field(description="角色列别/职业")
+    job: str = Field(description="角色类别/职业")
     story: str = Field(description="三句话描述任务历史")
     feats: List[str] = Field(description="任务功绩")
 class write_ttrpg_setting(BaseModel):
@@ -51,6 +52,12 @@ print("output",orjson.dumps(response_structured, option=orjson.OPT_INDENT_2).dec
 
 
 # 格式化结果
+try:
+    input_ttrpg = write_ttrpg_setting.model_validate(response_structured)
+except ValidationError as e:
+    print("验证错误:", e)
+    print("Response Structured:", response_structured)
+
 system_prompt_event  = """您是世界知名的桌面角色扮演游戏（RPG）游戏大师（GM）。
 
 使用输入的数据，写一个完整的三幕故事，包含10个事件，并且要有一个令人震惊的结局反转。玩家角色将作为一个团队，去对抗一种新兴的邪恶力量。
@@ -61,14 +68,14 @@ system_prompt_event  = """您是世界知名的桌面角色扮演游戏（RPG）
 -始终以 80 年代奇幻小说的风格写作。
 -您创建的所有名称必须具有创意且独特。总是颠覆期望。"""
 ai_2 = AIChat(
-    api_key=apy_key,
+    api_key=api_key,
     console=False,
     save_messages=False,  # with schema I/O, messages are never saved
     model=model,
     system=system_prompt_event 
 )
 
-input_ttrpg = write_ttrpg_setting.model_validate(response_structured)
+
 class Dialogue(BaseModel):
     character_name: str = fd("角色名称")
     dialogue: str = fd("来自角色的对话")
@@ -98,3 +105,12 @@ response_story  = ai_2(
 
 # orjson.dumps preserves field order from the ChatGPT API
 print("output2",orjson.dumps(response_story , option=orjson.OPT_INDENT_2).decode())
+
+c = Console(width=60, highlight=False)
+
+for event in response_story["events"]:
+    data = event["data"]
+    if event["type"] == "setting":
+        c.print(data["description"], style="italic")
+    if event["type"] == "conversation":
+        c.print(f"[b]{data['character_name']}[/b]: {data['dialogue']}")

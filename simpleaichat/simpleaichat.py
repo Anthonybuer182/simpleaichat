@@ -37,34 +37,26 @@ class AIChat(BaseModel):
     ):
         # client = Client(proxies=os.getenv("https_proxy"))
         client = sync_client()
+        self.client = client
         system_format = self.build_system(character, character_command, system)
 
-        sessions = {}
-        new_default_session = None
         if default_session:
             new_session = self.new_session(
                 return_session=True, system=system_format, id=id, **kwargs
             )
-
-            new_default_session = new_session
-            sessions = {new_session.id: new_session}
-
-        super().__init__(
-            client=client, default_session=new_default_session, sessions=sessions
-        )
+            self.init_session(new_session)
         # false and true
         if not system and console:
             character = "ChatGPT" if not character else character
-            new_default_session.title = character
+            new_session.title = character
             self.interactive_console(character=character, prime=prime)
 
     def new_session(
         self,
-        return_session: bool = False,
         **kwargs,
     ) -> Optional[ChatGPTSession]:
-        if "model" not in kwargs:  # set default
-            kwargs["model"] = "gpt-3.5-turbo-0125"
+        # if "model" not in kwargs:  # set default
+        #     kwargs["model"] = "gpt-3.5-turbo-0125"
         # TODO: Add support for more models (PaLM, Claude)
         model=kwargs["model"]
         if "gpt-" in model:
@@ -85,10 +77,20 @@ class AIChat(BaseModel):
                 },
                 **kwargs,
             )
-        if return_session:
-            return sess
         else:
-            self.sessions[sess.id] = sess
+            return None
+        self.init_session(sess)
+        return sess
+            
+    def init_session(self, sess: Optional[ChatSession]):
+        if sess:
+            self.default_session=sess
+            if self.sessions:
+                sessions = {}
+                sessions = {sess.id: sess}
+                self.sessions=sessions
+            else:
+                self.sessions[sess.id] = sess
 
     def get_session(self, id: Union[str, UUID] = None) -> ChatSession:
         try:
@@ -300,14 +302,12 @@ class AIChat(BaseModel):
                     # https://stackoverflow.com/a/68305271
                     row = {k: (None if v == "" else v) for k, v in row.items()}
                     messages.append(ChatMessage(**row))
-
-            # 不存在就创建新的session
-            if not self.get_session(id):{
+                    
+            session = self.get_session(id)
+            if session:
+                session.messages = messages
+            else:
                 self.new_session(id=id, **kwargs)
-            }
-            self.get_session(id).messages = messages
-
-            
 
         if input_path.endswith(".json"):
             with open(input_path, "rb") as f:
