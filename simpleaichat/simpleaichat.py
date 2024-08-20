@@ -302,10 +302,11 @@ class AIChat(BaseModel):
                     messages.append(ChatMessage(**row))
 
             # 不存在就创建新的session
-            if not self.sessions[id] :{
+            if not self.get_session(id):{
                 self.new_session(id=id, **kwargs)
             }
-            self.sessions[id].messages = messages
+            self.get_session(id).messages = messages
+
             
 
         if input_path.endswith(".json"):

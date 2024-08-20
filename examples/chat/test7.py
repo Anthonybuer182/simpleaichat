@@ -1,5 +1,5 @@
-
 import sys
+
 sys.path.append("..")
 from simpleaichat.simpleaichat import *
 from pydantic import BaseModel, Field
