@@ -31,20 +31,16 @@ class AIChat(BaseModel):
         system: str = None,
         id: Union[str, UUID] = uuid4(),
         prime: bool = True,
-        default_session: bool = True,
         console: bool = True,
         **kwargs,
     ):
-        # client = Client(proxies=os.getenv("https_proxy"))
-        client = sync_client()
-        self.client = client
         system_format = self.build_system(character, character_command, system)
-
-        if default_session:
-            new_session = self.new_session(
-                return_session=True, system=system_format, id=id, **kwargs
-            )
-            self.init_session(new_session)
+        new_session = self.new_session(
+            return_session=True, system=system_format, id=id, **kwargs
+        )
+        sessions={}
+        sessions[new_session.id] = new_session
+        super().__init__(client=sync_client(), default_session=new_session,sessions=sessions)
         # false and true
         if not system and console:
             character = "ChatGPT" if not character else character
@@ -55,8 +51,8 @@ class AIChat(BaseModel):
         self,
         **kwargs,
     ) -> Optional[ChatGPTSession]:
-        # if "model" not in kwargs:  # set default
-        #     kwargs["model"] = "gpt-3.5-turbo-0125"
+        if "model" not in kwargs:  # set default
+            kwargs["model"] = "gpt-3.5-turbo-0125"
         # TODO: Add support for more models (PaLM, Claude)
         model=kwargs["model"]
         if "gpt-" in model:
@@ -77,20 +73,7 @@ class AIChat(BaseModel):
                 },
                 **kwargs,
             )
-        else:
-            return None
-        self.init_session(sess)
-        return sess
-            
-    def init_session(self, sess: Optional[ChatSession]):
-        if sess:
-            self.default_session=sess
-            if self.sessions:
-                sessions = {}
-                sessions = {sess.id: sess}
-                self.sessions=sessions
-            else:
-                self.sessions[sess.id] = sess
+        return sess        
 
     def get_session(self, id: Union[str, UUID] = None) -> ChatSession:
         try:
@@ -115,7 +98,7 @@ class AIChat(BaseModel):
 
     @contextmanager
     def session(self, **kwargs):
-        sess = self.new_session(return_session=True, **kwargs)
+        sess = self.new_session(**kwargs)
         self.sessions[sess.id] = sess
         try:
             yield sess
@@ -302,13 +285,13 @@ class AIChat(BaseModel):
                     # https://stackoverflow.com/a/68305271
                     row = {k: (None if v == "" else v) for k, v in row.items()}
                     messages.append(ChatMessage(**row))
-                    
-            session = self.get_session(id)
-            if session:
-                session.messages = messages
-            else:
-                self.new_session(id=id, **kwargs)
 
+            sess = self.get_session(id)
+            if not sess:
+                 sess = self.new_session(id=id, **kwargs)
+                 self.sessions[sess.id] = sess
+            sess.messages = messages
+        
         if input_path.endswith(".json"):
             with open(input_path, "rb") as f:
                 sess_dict = orjson.loads(f.read())
@@ -316,6 +299,7 @@ class AIChat(BaseModel):
             for arg in kwargs:
                 sess_dict[arg] = kwargs[arg]
             self.new_session(**sess_dict)
+            self.sessions[sess.id] = sess
 
     # Tabulators for returning total token counts
     def message_totals(self, attr: str, id: Union[str, UUID] = None) -> int:
@@ -408,7 +392,7 @@ class AsyncAIChat(AIChat):
 
     @asynccontextmanager
     async def session(self, **kwargs):
-        sess = self.new_session(return_session=True, **kwargs)
+        sess = self.new_session(**kwargs)
         self.sessions[sess.id] = sess
         try:
             yield sess
