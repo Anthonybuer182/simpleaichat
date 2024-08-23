@@ -25,5 +25,8 @@ setup(
         "orjson>=3.9.0",
         "rich>=13.4.1",
         "python-dateutil>=2.8.2",
+        "fastapi>=0.100.0",
+        "uvicorn[standard]>=0.22.0",
+        "websockets>=11.0",
     ],
 )
