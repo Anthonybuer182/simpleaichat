@@ -9,8 +9,8 @@ from uuid import uuid4
 # gpt-3.5-turbo-0125
 # Ee1imTXK7hDwDM1aFa0337029aD8421bA27882E038CbA163
 
-model="gpt-3.5-turbo-0125"
-api_key= "sk-Ee1imTXK7hDwDM1aFa0337029aD8421bA27882E038CbA163"
+model="qwen-turbo"
+api_key= "sk-1226bc6e75f94b3cba8d8c81dcc8d6f3"
 
 system_optimized = """Write a Python function based on the user input.
 
@@ -19,6 +19,13 @@ You must obey ALL the following rules:
 - Never put in-line comments or docstrings in your code."""
 
 params = {"temperature": 0.0}  # for reproducibility
+
+ai = AIChat(
+    api_key=api_key,
+    console=False,
+    save_messages=False,  # with schema I/O, messages are never saved
+    model=model,
+)
 
 ai_func = AIChat(api_key=api_key, console=False)
 def gen_code(query):

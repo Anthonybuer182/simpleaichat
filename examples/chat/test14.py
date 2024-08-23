@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 import orjson
 model="qwen-turbo"
 api_key= "sk-1226bc6e75f94b3cba8d8c81dcc8d6f3"
-ai = AIChat(console=False, params={"temperature": 0.0})  # for reproducibility
+ai = AIChat(api_key=api_key, console=False, params={"temperature": 0.0})  # for reproducibility
 console = Console(width=60, highlight=False)
 tips = [
     "This ChatGPT model does not have access to the internet, and its training data cut-off is September 2021.",
@@ -40,7 +40,7 @@ ai.new_session(id="tips",
                params=params)
 
 def check_user_input(message):
-    tip_idx = ai(message)
+    tip_idx = ai(message, id="tips")
     if tip_idx == "0":  # no tip needed
         return
     else:

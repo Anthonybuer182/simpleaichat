@@ -39,7 +39,8 @@ class AIChat(BaseModel):
             return_session=True, system=system_format, id=id, **kwargs
         )
         sessions={}
-        sessions[new_session.id] = new_session
+        if new_session:
+            sessions[new_session.id] = new_session
         super().__init__(client=sync_client(), default_session=new_session,sessions=sessions)
         # false and true
         if not system and console:
@@ -52,32 +53,36 @@ class AIChat(BaseModel):
         return_session: bool = False,
         **kwargs,
     ) -> Optional[ChatGPTSession]:
-        if "model" not in kwargs:  # set default
-            kwargs["model"] = "gpt-3.5-turbo-0125"
+        # if "model" not in kwargs:  # set default
+        #     kwargs["model"] = "gpt-3.5-turbo-0125"
         # TODO: Add support for more models (PaLM, Claude)
-        model=kwargs["model"]
-        if "gpt-" in model:
-            gpt_api_key = kwargs.get("api_key") or os.getenv("API_KEY")
-            assert gpt_api_key, f"An API key for {kwargs['model'] } was not defined."
-            sess = ChatGPTSession(
-                auth={
+        try:
+            model=kwargs["model"]
+            if "gpt-" in model:
+                gpt_api_key = kwargs.get("api_key") or os.getenv("API_KEY")
+                assert gpt_api_key, f"An API key for {kwargs['model'] } was not defined."
+                sess = ChatGPTSession(
+                    auth={
                     "api_key": gpt_api_key,
-                },
-                **kwargs,
-            )
-        elif "qwen-" in model:
-            qwen_api_key = kwargs.get("api_key") or os.getenv("API_KEY")
-            assert qwen_api_key, f"An API key for {model} was not defined."
-            sess = ChatQwenSession(
-                auth={
-                "api_key": qwen_api_key,
-                },
-                **kwargs,
-            )
+                    },
+                    **kwargs,
+                )
+            elif "qwen-" in model:
+                qwen_api_key = kwargs.get("api_key") or os.getenv("API_KEY")
+                assert qwen_api_key, f"An API key for {model} was not defined."
+                sess = ChatQwenSession(
+                    auth={
+                    "api_key": qwen_api_key,
+                    },
+                    **kwargs,
+                )
+        except:
+            return None
         if return_session:
             return sess
         else:
-            self.sessions[sess.id] = sess     
+            self.sessions[sess.id] = sess
+            self.default_session = sess     
 
     def get_session(self, id: Union[str, UUID] = None) -> ChatSession:
         try:
