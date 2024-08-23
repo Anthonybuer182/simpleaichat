@@ -49,6 +49,7 @@ class AIChat(BaseModel):
 
     def new_session(
         self,
+        return_session: bool = False,
         **kwargs,
     ) -> Optional[ChatGPTSession]:
         if "model" not in kwargs:  # set default
@@ -73,7 +74,10 @@ class AIChat(BaseModel):
                 },
                 **kwargs,
             )
-        return sess        
+        if return_session:
+            return sess
+        else:
+            self.sessions[sess.id] = sess     
 
     def get_session(self, id: Union[str, UUID] = None) -> ChatSession:
         try:
