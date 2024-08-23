@@ -18,7 +18,7 @@ def wikipedia_search(query: str, n: int = 1) -> Union[str, List[str]]:
         "srprop": "",
     }
 
-    r_search = sync_client().get(WIKIPEDIA_API_URL, params=SEARCH_PARAMS)
+    r_search = sync_client(proxy = False).get(WIKIPEDIA_API_URL, params=SEARCH_PARAMS)
     results = [x["title"] for x in r_search.json()["query"]["search"]]
 
     return results[0] if n == 1 else results
@@ -126,6 +126,23 @@ def log_response(response: httpx.Response):
     body = content.decode(response.encoding or 'utf-8')
     logger.info(f"Response body: {body}")
 
+async def async_log_request(request: httpx.Request):
+    logger.info("------ Request ------")
+    if request.content:
+        logger.info(f"Request body: {request.content.decode().encode('utf-8').decode('unicode_escape')}")
+    else:
+        logger.info("Request body: No content")
+
+async def async_log_response(response: httpx.Response):
+    logger.info("------ Response ------")
+    logger.info(f"Response {response.request.method} {response.request.url} - {response.status_code}")
+    if response.stream:
+        content = await response.aread()  # 注意这里需要 `await`
+    else:
+        content = response.text
+    body = content.decode(response.encoding or 'utf-8')
+    logger.info(f"Response body: {body}")
+
 def sync_client(proxy: bool = True) -> httpx.Client:
     proxies = os.getenv("https_proxy") if proxy else None
     return httpx.Client(
@@ -140,6 +157,6 @@ def async_client(proxy: bool = True) -> httpx.AsyncClient:
     return httpx.AsyncClient(
         proxies=proxies,
         event_hooks={
-            "request": [log_request],
-            "response": [log_response],
+            "request": [async_log_request],
+            "response": [async_log_response],
     })
