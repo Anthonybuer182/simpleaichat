@@ -35,9 +35,7 @@ class AIChat(BaseModel):
         **kwargs,
     ):
         system_format = self.build_system(character, character_command, system)
-        new_session = self.new_session(
-            return_session=True, system=system_format, id=id, **kwargs
-        )
+        new_session = self.new_session(return_session=True, system=system_format, id=id, **kwargs)
         sessions={}
         if new_session:
             sessions[new_session.id] = new_session
@@ -53,31 +51,19 @@ class AIChat(BaseModel):
         return_session: bool = False,
         **kwargs,
     ) -> Optional[ChatGPTSession]:
-        # if "model" not in kwargs:  # set default
-        #     kwargs["model"] = "gpt-3.5-turbo-0125"
-        # TODO: Add support for more models (PaLM, Claude)
-        try:
-            model=kwargs["model"]
-            if "gpt-" in model:
-                gpt_api_key = kwargs.get("api_key") or os.getenv("API_KEY")
-                assert gpt_api_key, f"An API key for {kwargs['model'] } was not defined."
-                sess = ChatGPTSession(
-                    auth={
-                    "api_key": gpt_api_key,
-                    },
-                    **kwargs,
-                )
-            elif "qwen-" in model:
-                qwen_api_key = kwargs.get("api_key") or os.getenv("API_KEY")
-                assert qwen_api_key, f"An API key for {model} was not defined."
-                sess = ChatQwenSession(
-                    auth={
-                    "api_key": qwen_api_key,
-                    },
-                    **kwargs,
-                )
-        except:
+        if "model" not in kwargs:  # set default
+            # kwargs["model"] = "gpt-3.5-turbo-0125"
             return None
+        # TODO: Add support for more models (PaLM, Claude)
+        model=kwargs["model"]
+        if "gpt-" in model:
+            gpt_api_key = kwargs.get("api_key") or os.getenv("API_KEY")
+            assert gpt_api_key, f"An API key for {kwargs['model'] } was not defined."
+            sess = ChatGPTSession(auth={"api_key": gpt_api_key,},**kwargs)
+        elif "qwen-" in model:
+            qwen_api_key = kwargs.get("api_key") or os.getenv("API_KEY")
+            assert qwen_api_key, f"An API key for {model} was not defined."
+            sess = ChatQwenSession(auth={"api_key": qwen_api_key,},**kwargs,)
         if return_session:
             return sess
         else:
