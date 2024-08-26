@@ -94,7 +94,6 @@ class AIChat(BaseModel):
     @contextmanager
     def session(self, **kwargs):
         sess = self.new_session(**kwargs)
-        self.sessions[sess.id] = sess
         try:
             yield sess
         finally:
@@ -284,7 +283,6 @@ class AIChat(BaseModel):
             sess = self.get_session(id)
             if not sess:
                  sess = self.new_session(id=id, **kwargs)
-                 self.sessions[sess.id] = sess
             sess.messages = messages
         
         if input_path.endswith(".json"):
@@ -294,7 +292,12 @@ class AIChat(BaseModel):
             for arg in kwargs:
                 sess_dict[arg] = kwargs[arg]
             self.new_session(**sess_dict)
-            self.sessions[sess.id] = sess
+
+    def load_json_session(self, json_data, **kwargs):
+        sess_dict = orjson.loads(json_data)
+        for arg in kwargs:
+            sess_dict[arg] = kwargs[arg]
+        self.new_session(**sess_dict)
 
     # Tabulators for returning total token counts
     def message_totals(self, attr: str, id: Union[str, UUID] = None) -> int:
@@ -388,7 +391,6 @@ class AsyncAIChat(AIChat):
     @asynccontextmanager
     async def session(self, **kwargs):
         sess = self.new_session(**kwargs)
-        self.sessions[sess.id] = sess
         try:
             yield sess
         finally:
