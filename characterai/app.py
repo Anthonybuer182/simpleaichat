@@ -2,9 +2,8 @@ import asyncio
 from fastapi import FastAPI
 import uvicorn
 import websockets
-from communication.http_handler import router
-from communication.websocket import handle_websocket
-
+from websocket import handle_websocket
+from httpapi import router
 app = FastAPI()
 app.include_router(router)
 async def main():
