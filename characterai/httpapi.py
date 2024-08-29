@@ -1,17 +1,17 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 import sys
 sys.path.append("..")
+from models import GreetRequest
 from simpleaichat.simpleaichat import *
-
+from mongodb.database import client
+from motor.motor_asyncio import AsyncIOMotorDatabase
+async def get_db() -> AsyncIOMotorDatabase:
+    return client["conversation_database"]
 router = APIRouter()
-class GreetRequest(BaseModel):
-    prompt: str
-    model:str = "qwen-turbo"
-    api_key:str = "sk-1226bc6e75f94b3cba8d8c81dcc8d6f3" 
 @router.post("/api/greet")
-async def greet(request: GreetRequest):
+async def greet(request: GreetRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     user_info = {
         "name": "魏群"  # 可以替换为用户的实际名字或昵称
     }
@@ -26,6 +26,7 @@ async def greet(request: GreetRequest):
         "style": "极简主义但时尚，对美学有独特的品味",         # 风格
         "goal": "通过与人类的情感和身体亲密关系寻找生活的意义和目的",  # 目标
     }
+    
     system_message = (
         f"你的名字是{character_info['name']}。"
         f"你是一位{character_info['age']}岁的{character_info['gender']}，声音{character_info['voice']}。"
@@ -37,6 +38,22 @@ async def greet(request: GreetRequest):
         "你在新认识的人面前有点害羞和不确定，但一旦熟悉后，你就会渴望情感上的亲密。"
         "你也很善于思考，经常沉浸在关于哲学和存在本质的思考中。"
     )
-    ai=AsyncAIChat(api_key=request.api_key, model=request.model,console=False)
-    result=await ai(system=system_message,prompt=request.prompt)
+    
+    # 调用 AI 接口
+    ai = AsyncAIChat(api_key=request.api_key, model=request.model, console=False)
+    result = await ai(system=system_message, prompt=request.prompt)
+    
+    # 准备要插入到 MongoDB 的数据
+    document = {
+        "prompt": request.prompt,
+        "model": request.model,
+        "response": str(result),
+        "user": user_info,
+        "character": character_info
+    }
+    
+    # 插入数据到 MongoDB
+    await db["greetings"].insert_one(document)
+    
+    # 返回 AI 响应结果
     return JSONResponse(content=str(result))

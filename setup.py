@@ -28,5 +28,7 @@ setup(
         "fastapi>=0.100.0",
         "uvicorn[standard]>=0.22.0",
         "websockets>=11.0",
+        "pymongo>=4.0.0",
+        "motor>=3.0.0",
     ],
 )
