@@ -293,8 +293,7 @@ class AIChat(BaseModel):
                 sess_dict[arg] = kwargs[arg]
             self.new_session(**sess_dict)
 
-    def load_json_session(self, json_data, **kwargs):
-        sess_dict = orjson.loads(json_data)
+    def load_json_session(self, sess_dict, **kwargs):
         for arg in kwargs:
             sess_dict[arg] = kwargs[arg]
         self.new_session(**sess_dict)

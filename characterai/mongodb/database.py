@@ -1,5 +1,5 @@
 # database.py
-from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
+from motor.motor_asyncio import AsyncIOMotorClient
 
 # 全局数据库客户端
 client: AsyncIOMotorClient = None

@@ -8,7 +8,7 @@ from simpleaichat.simpleaichat import *
 from mongodb.database import client
 from motor.motor_asyncio import AsyncIOMotorDatabase
 async def get_db() -> AsyncIOMotorDatabase:
-    return client["conversation_database"]
+    return client
 router = APIRouter()
 @router.post("/api/greet")
 async def greet(request: GreetRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
@@ -40,9 +40,12 @@ async def greet(request: GreetRequest, db: AsyncIOMotorDatabase = Depends(get_db
     )
     
     # 调用 AI 接口
-    ai = AsyncAIChat(api_key=request.api_key, model=request.model, console=False)
-    result = await ai(system=system_message, prompt=request.prompt)
-    
+    ai = AsyncAIChat(console=False)
+
+    oldSession = await db["sessions"].find_one({"id": request.session_id})
+    if oldSession:
+        ai.load_json_session(oldSession)
+    result = await ai(api_key=request.api_key, model=request.model, id=request.session_id, system=system_message, prompt=request.prompt)
     # 准备要插入到 MongoDB 的数据
     document = {
         "prompt": request.prompt,
@@ -51,9 +54,12 @@ async def greet(request: GreetRequest, db: AsyncIOMotorDatabase = Depends(get_db
         "user": user_info,
         "character": character_info
     }
-    
+    sess_dict = ai.get_session(id=request.session_id).model_dump(
+            exclude={"auth", "api_url", "input_fields"},
+            exclude_none=True,
+        )
     # 插入数据到 MongoDB
-    await db["greetings"].insert_one(document)
+    await db["sessions"].insert_one(sess_dict)
     
     # 返回 AI 响应结果
     return JSONResponse(content=str(result))
