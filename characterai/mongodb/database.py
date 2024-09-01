@@ -1,14 +1,21 @@
 # database.py
 from motor.motor_asyncio import AsyncIOMotorClient
+from motor.motor_asyncio import AsyncIOMotorDatabase
 
-# 全局数据库客户端
 client: AsyncIOMotorClient = None
 
-async def init_db(uri: str, db_name: str):
+async def init_db(uri: str) -> AsyncIOMotorDatabase:
     global client
-    client = AsyncIOMotorClient(uri)
-    return client[db_name]
+    if client is None:
+        client = AsyncIOMotorClient(uri)
+    return client["conversation_database"]
 
 async def close_db():
     global client
-    client.close()
+    if client:
+        client.close()
+
+async def get_db() -> AsyncIOMotorDatabase:
+    if client is None:
+        raise RuntimeError("Database client is not initialized.")
+    return client["conversation_database"]
