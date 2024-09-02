@@ -3,9 +3,10 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from mongodb.database import get_db
-from simpleaichat.simpleaichat import AsyncAIChat
 from motor.motor_asyncio import AsyncIOMotorDatabase
 from models import GreetRequest
+from uuid import UUID
+from simpleaichat.simpleaichat import AsyncAIChat
 
 router = APIRouter()
 
@@ -35,10 +36,9 @@ async def greet(request: GreetRequest, db: AsyncIOMotorDatabase = Depends(get_db
     )
     
     ai = AsyncAIChat(console=False)
-
-    old_session = await db["sessions"].find_one({"id": request.session_id})
+    old_session = await db["sessions"].find_one({"id": UUID(request.session_id)})
     if old_session:
-        ai.load_json_session(json_data=old_session,api_key=request.api_key, model=request.model)
+        ai.load_json_session(sess_dict=old_session,api_key=request.api_key, model=request.model)
     else:
         ai.new_session(api_key=request.api_key, model=request.model)
     
@@ -48,6 +48,15 @@ async def greet(request: GreetRequest, db: AsyncIOMotorDatabase = Depends(get_db
         exclude={"auth", "api_url", "input_fields"},
         exclude_none=True,
     )
-    await db["sessions"].insert_one(sess_dict)
+    if old_session:
+        formatted_messages = [message.model_dump() for message in ai.get_session().new_messages]
+        await db["sessions"].update_one({"id": UUID(request.session_id)}),
+        {
+            "$push": {
+                "messages": {"$each": formatted_messages}
+            }
+        }
+    else:
+        await db["sessions"].insert_one(sess_dict)
     
     return JSONResponse(content=str(result))

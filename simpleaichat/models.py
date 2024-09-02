@@ -41,6 +41,7 @@ class ChatSession(BaseModel):
     system: str
     params: Dict[str, Any] = {}
     messages: List[ChatMessage] = []
+    new_messages: List[ChatMessage] = []
     input_fields: Set[str] = {}
     recent_messages: Optional[int] = None
     save_messages: Optional[bool] = True
@@ -88,6 +89,8 @@ class ChatSession(BaseModel):
             if save_messages:
                 self.messages.append(user_message)
                 self.messages.append(assistant_message)
+                self.new_messages=[user_message,assistant_message]
         elif self.save_messages:
             self.messages.append(user_message)
             self.messages.append(assistant_message)
+            self.new_messages=[user_message,assistant_message]

@@ -1,13 +1,12 @@
 # database.py
 from motor.motor_asyncio import AsyncIOMotorClient
 from motor.motor_asyncio import AsyncIOMotorDatabase
-
 client: AsyncIOMotorClient = None
 
 async def init_db(uri: str) -> AsyncIOMotorDatabase:
     global client
     if client is None:
-        client = AsyncIOMotorClient(uri)
+        client = AsyncIOMotorClient(uri,uuidRepresentation='standard')
     return client["conversation_database"]
 
 async def close_db():
