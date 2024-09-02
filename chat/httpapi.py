@@ -50,12 +50,14 @@ async def greet(request: GreetRequest, db: AsyncIOMotorDatabase = Depends(get_db
     )
     if old_session:
         formatted_messages = [message.model_dump() for message in ai.get_session().new_messages]
-        await db["sessions"].update_one({"id": UUID(request.session_id)}),
-        {
-            "$push": {
-                "messages": {"$each": formatted_messages}
+        await db["sessions"].update_one(
+            {"id": UUID(request.session_id)},
+            {
+                "$push": {
+                    "messages": {"$each": formatted_messages}
+                }
             }
-        }
+        )
     else:
         await db["sessions"].insert_one(sess_dict)
     
