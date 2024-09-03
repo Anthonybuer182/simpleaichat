@@ -2,16 +2,17 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from image.image_generator import ImageGenerator
 from mongodb.database import get_db
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from models import GreetRequest
+from models import CharacterRequest, ChatRequest
 from uuid import UUID
 from simpleaichat.simpleaichat import AsyncAIChat
 
 router = APIRouter()
 
-@router.post("/api/greet")
-async def greet(request: GreetRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
+@router.post("/api/chat")
+async def chat(request: ChatRequest, db: AsyncIOMotorDatabase = Depends(get_db)):
     user_info = {"name": "魏群"}
     character_info = {
         "name": "索菲·亚历山大",
@@ -62,3 +63,9 @@ async def greet(request: GreetRequest, db: AsyncIOMotorDatabase = Depends(get_db
         await db["sessions"].insert_one(sess_dict)
     
     return JSONResponse(content=str(result))
+@router.post("/api/image/generate")
+async def generate(request: CharacterRequest):
+    imageGenerator = ImageGenerator(request.model)
+    results=await imageGenerator.generate_text_to_image(request)
+    return JSONResponse(content=str(results))
+    
