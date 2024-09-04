@@ -17,10 +17,14 @@ class Character(BaseModel):
     style: str
     goal: str
 
-class CharacterRequest(BaseModel):
+class ImageGenerateRequest(BaseModel):
     model: str = "flux-schnell"
     prompt: str
 
 class TaskRequest(BaseModel):
     model: str = "flux-schnell"
     task_id: str
+
+class AudioGenerateRequest(BaseModel):
+    model: str = ""
+    prompt: str

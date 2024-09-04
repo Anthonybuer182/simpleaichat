@@ -1,11 +1,12 @@
 # httpapi.py
 from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
+from chat.audio.audio_generator import AudioGenerator
 from image.image_generator import ImageGenerator
 from mongodb.database import get_db
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from models import CharacterRequest, ChatRequest, TaskRequest
+from models import AudioGenerateRequest, ImageGenerateRequest, ChatRequest, TaskRequest
 from uuid import UUID
 from simpleaichat.simpleaichat import AsyncAIChat
 
@@ -64,14 +65,20 @@ async def chat(request: ChatRequest, db: AsyncIOMotorDatabase = Depends(get_db))
     
     return JSONResponse(content=str(result))
 @router.post("/api/image/generate")
-async def generate(request: CharacterRequest):
+async def generate(request: ImageGenerateRequest):
     imageGenerator = ImageGenerator(request.model)
-    results=await imageGenerator.generate_text_to_image(request)
+    results=await imageGenerator.text_to_image(request)
     return JSONResponse(content=str(results))
 
 @router.post("/api/image/get")
 async def getImage(request: TaskRequest):
     imageGenerator = ImageGenerator(request.model)
-    results=await imageGenerator.get_generate_image(request.task_id)
+    results=await imageGenerator.get_image(request.task_id)
     return JSONResponse(content=str(results))
+
+@router.post("/api/audio/generate")
+async def generate(request: AudioGenerateRequest):
+    audioGenerator = AudioGenerator(request.model)
+    result=await audioGenerator.text_sync_to_audio(request)
+    return Response(content=result, media_type="audio/wav")
     

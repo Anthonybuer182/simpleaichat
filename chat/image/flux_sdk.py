@@ -4,11 +4,11 @@ import dashscope
 import requests
 from chat.image.base import ImageGeneration
 from urllib.parse import urlparse, unquote
-from chat.models import CharacterRequest
+from chat.models import ImageGenerateRequest
 
 class FluxGenerationSDK(ImageGeneration):
     api_key: str = "sk-1226bc6e75f94b3cba8d8c81dcc8d6f3"
-    async def text_to_image(self, request:CharacterRequest):
+    async def text_to_image(self, request:ImageGenerateRequest):
         rsp = dashscope.ImageSynthesis.call(api_key= self.api_key,model=request.model,
                                         prompt=request.prompt,
                                         size='1024*1024')

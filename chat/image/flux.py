@@ -2,7 +2,7 @@ from chat.image.base import ImageGeneration
 from pydantic import HttpUrl
 from httpx import AsyncClient
 
-from chat.models import CharacterRequest
+from chat.models import ImageGenerateRequest
 from simpleaichat.utils import async_client
 class FluxGeneration(ImageGeneration):
     generate_url: HttpUrl = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis"
@@ -14,7 +14,7 @@ class FluxGeneration(ImageGeneration):
         "steps":4
     }
     client: AsyncClient = async_client()
-    async def text_to_image(self, request:CharacterRequest):
+    async def text_to_image(self, request:ImageGenerateRequest):
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}",
