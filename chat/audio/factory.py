@@ -25,5 +25,5 @@ class AudioGeneratorFactory:
         for generator_class, model_list in cls.generators.items():
             for model in model_list:
                 if modelName.lower() == model.name.lower():
-                    return generator_class()
+                    return generator_class(modelName)
         return SambertGenerationSDK()

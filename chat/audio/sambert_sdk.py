@@ -5,11 +5,11 @@ from chat.models import AudioGenerateRequest
 from playsound import playsound
 class SambertGenerationSDK(AudioGeneration):
     api_key: str = "sk-1226bc6e75f94b3cba8d8c81dcc8d6f3"
-    async def text_sync_to_audio(self, request:AudioGenerateRequest):
+    async def text_sync_to_audio(self, text:str):
         dashscope.api_key = self.api_key
 
-        result = SpeechSynthesizer.call(model=request.model,
-                                        text=request.prompt,
+        result = SpeechSynthesizer.call(model=self.model,
+                                        text=text,
                                         sample_rate=48000,
                                         format='wav')
         if result.get_audio_data() is not None:
@@ -20,9 +20,9 @@ class SambertGenerationSDK(AudioGeneration):
 
         return result.get_response()
 
-    async def audio_sync_to_text(self, data):
+    async def audio_sync_to_text(self, audio):
         pass
 
-    async def audio_stream_to_text(self, data):
+    async def text_stream_to_audio(self, text):
         pass
 

@@ -1,14 +1,16 @@
 from abc import ABC, abstractmethod
 
 class AudioGeneration(ABC):
+    def __init__(self, model):
+        self.model = model
     @abstractmethod
-    def text_sync_to_audio(self, text_params):
+    def text_sync_to_audio(self, text):
         pass
 
     @abstractmethod
-    def audio_sync_to_text(self, audio_params):
+    def audio_sync_to_text(self, audio):
         pass
 
     @abstractmethod
-    def audio_stream_to_text(self, text_params):
+    def text_stream_to_audio(self, text):
         pass

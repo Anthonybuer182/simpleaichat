@@ -79,6 +79,6 @@ async def getImage(request: TaskRequest):
 @router.post("/api/audio/generate")
 async def generate(request: AudioGenerateRequest):
     audioGenerator = AudioGenerator(request.model)
-    result=await audioGenerator.text_sync_to_audio(request)
+    result=await audioGenerator.text_sync_to_audio(request.prompt)
     return Response(content=result, media_type="audio/wav")
     
