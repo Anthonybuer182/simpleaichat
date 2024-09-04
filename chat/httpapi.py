@@ -67,7 +67,7 @@ async def chat(request: ChatRequest, db: AsyncIOMotorDatabase = Depends(get_db))
 @router.post("/api/image/generate")
 async def generate(request: ImageGenerateRequest):
     imageGenerator = ImageGenerator(request.model)
-    results=await imageGenerator.text_to_image(request)
+    results=await imageGenerator.text_to_image(request.prompt)
     return JSONResponse(content=str(results))
 
 @router.post("/api/image/get")

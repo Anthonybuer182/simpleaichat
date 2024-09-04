@@ -14,15 +14,15 @@ class FluxGeneration(ImageGeneration):
         "steps":4
     }
     client: AsyncClient = async_client()
-    async def text_to_image(self, request:ImageGenerateRequest):
+    async def text_to_image(self, text):
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {self.api_key}",
             "X-DashScope-Async": "enable",
         }
         data = {
-            "model": request.model,
-            "input": {"prompt":request.prompt},
+            "model": self.model,
+            "input": {"prompt":text},
             "parameters":self.parameters
         }
         r = await self.client.post(

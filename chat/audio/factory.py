@@ -10,8 +10,8 @@ class AudioGeneratorFactory:
     generators = {
         SambertGenerationSDK: 
         [
-            SambertModel("sambert-zhixiang-v1","磁性男声"),
             SambertModel("sambert-zhiqi-v1","温柔女声"),
+            SambertModel("sambert-zhixiang-v1","磁性男声"),
         ],
         SambertModel: 
         [
@@ -21,9 +21,9 @@ class AudioGeneratorFactory:
     }
 
     @classmethod
-    def get_generator(cls, modelName):
+    def get_generator(cls, model):
         for generator_class, model_list in cls.generators.items():
-            for model in model_list:
-                if modelName.lower() == model.name.lower():
-                    return generator_class(modelName)
-        return SambertGenerationSDK()
+            for modelObject in model_list:
+                if modelObject.lower() == model.name.lower():
+                    return generator_class(model)
+        return SambertGenerationSDK("sambert-zhiqi-v1")

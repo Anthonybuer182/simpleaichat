@@ -9,7 +9,7 @@ class ImageGeneratorFactory:
 
     @classmethod
     def get_generator(cls, model):
-        for keyword, generator_class in cls.generators.items():
-            if model.lower() in keyword.lower():
-                return generator_class()
-        return FluxGeneration()
+        for modelName, generator_class in cls.generators.items():
+            if model.lower() in modelName.lower():
+                return generator_class(modelName)
+        return FluxGeneration("flux-schnell")
