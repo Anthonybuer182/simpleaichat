@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from image.image_generator import ImageGenerator
 from mongodb.database import get_db
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from models import CharacterRequest, ChatRequest
+from models import CharacterRequest, ChatRequest, TaskRequest
 from uuid import UUID
 from simpleaichat.simpleaichat import AsyncAIChat
 
@@ -67,5 +67,11 @@ async def chat(request: ChatRequest, db: AsyncIOMotorDatabase = Depends(get_db))
 async def generate(request: CharacterRequest):
     imageGenerator = ImageGenerator(request.model)
     results=await imageGenerator.generate_text_to_image(request)
+    return JSONResponse(content=str(results))
+
+@router.post("/api/image/get")
+async def getImage(request: TaskRequest):
+    imageGenerator = ImageGenerator(request.model)
+    results=await imageGenerator.get_generate_image(request.task_id)
     return JSONResponse(content=str(results))
     

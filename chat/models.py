@@ -20,3 +20,7 @@ class Character(BaseModel):
 class CharacterRequest(BaseModel):
     model: str = "flux-schnell"
     prompt: str
+
+class TaskRequest(BaseModel):
+    model: str = "flux-schnell"
+    task_id: str

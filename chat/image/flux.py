@@ -22,7 +22,7 @@ class FluxGeneration(ImageGeneration):
         }
         data = {
             "model": request.model,
-            "input": request.prompt,
+            "input": {"prompt":request.prompt},
             "parameters":self.parameters
         }
         r = await self.client.post(
@@ -49,7 +49,7 @@ class FluxGeneration(ImageGeneration):
             "Authorization": f"Bearer {self.api_key}",
         }
         r = await self.client.get(
-            self.generate_url+task_id,
+            self.image_url+task_id,
             headers=headers,
             timeout=None,
         )
@@ -58,5 +58,5 @@ class FluxGeneration(ImageGeneration):
             results = r["output"]["results"]
         except Exception as e:
             print(f"Failed to get image for task {task_id}, error: {e}")
-        return results
+        return [result['url'] for result in results]
 

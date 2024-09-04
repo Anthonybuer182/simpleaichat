@@ -9,3 +9,5 @@ class ImageGenerator:
 
     def generate_image_to_image(self, request):
         return self.generator.image_to_image(request)
+    def get_generate_image(self, task_id):
+        return self.generator.get_image(task_id)

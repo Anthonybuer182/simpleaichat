@@ -1,9 +1,10 @@
 from chat.image.flux import FluxGeneration
+from chat.image.flux_sdk import FluxGenerationSDK
 
 class ImageGeneratorFactory:
     generators = {
-        'flux-schnell': FluxGeneration,
-        # 可以在此处添加更多策略
+        '': FluxGeneration,
+        'flux-schnell':FluxGenerationSDK
     }
 
     @classmethod
@@ -11,4 +12,4 @@ class ImageGeneratorFactory:
         for keyword, generator_class in cls.generators.items():
             if model.lower() in keyword.lower():
                 return generator_class()
-        raise ValueError(f"No matching model found for '{model}'.")
+        return FluxGeneration()
