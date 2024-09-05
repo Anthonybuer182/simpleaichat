@@ -1,10 +1,11 @@
+from typing import Optional
 from pydantic import BaseModel
 
 class ChatRequest(BaseModel):
-    session_id: str
+    session_id: str = ""
     prompt: str
-    model: str = "qwen-turbo"
-    api_key: str = "sk-1226bc6e75f94b3cba8d8c81dcc8d6f3"
+    model: str = ""
+    api_key: str = ""
 
 class Character(BaseModel):
     name: str
@@ -18,11 +19,11 @@ class Character(BaseModel):
     goal: str
 
 class ImageGenerateRequest(BaseModel):
-    model: str = "flux-schnell"
+    model: str = ""
     prompt: str
 
 class TaskRequest(BaseModel):
-    model: str = "flux-schnell"
+    model: str = ""
     task_id: str
 
 class AudioGenerateRequest(BaseModel):

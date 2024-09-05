@@ -5,6 +5,7 @@ from httpx import AsyncClient
 from chat.models import ImageGenerateRequest
 from simpleaichat.utils import async_client
 class FluxGeneration(ImageGeneration):
+    SUCCEEDED = "SUCCEEDED"
     generate_url: HttpUrl = "https://dashscope.aliyuncs.com/api/v1/services/aigc/text2image/image-synthesis"
     image_url: HttpUrl = "https://dashscope.aliyuncs.com/api/v1/tasks/"
     api_key: str = "sk-1226bc6e75f94b3cba8d8c81dcc8d6f3"
@@ -34,13 +35,13 @@ class FluxGeneration(ImageGeneration):
         r = r.json()
         try:
             task_status = r["output"]["task_status"]
-            print(f"Model {request.model}: Image generation status: {task_status}")
+            print(f"Model {self.model}: Image generation status: {task_status}")
             task_id = r["output"]["task_id"]
         except Exception as e:
-            print(f"Model {request.model}: Failed to generate image for prompt: {request.prompt}, error: {e}")
+            print(f"Model {self.model}: Failed to generate image for prompt: {text}, error: {e}")
         return await self.get_image(task_id)
 
-    async def image_to_image(self, data):
+    async def image_to_image(self, image):
         pass
 
     async def get_image(self, task_id):
@@ -55,8 +56,12 @@ class FluxGeneration(ImageGeneration):
         )
         r = r.json()
         try:
-            results = r["output"]["results"]
+            task_status = r["output"]["task_status"]
+            print(f"Model {self.model}: Image generation status: {task_status}")
+            if task_status == FluxGeneration.SUCCEEDED:
+                results = r["output"]["results"]
+                return [result['url'] for result in results]
         except Exception as e:
             print(f"Failed to get image for task {task_id}, error: {e}")
-        return [result['url'] for result in results]
+        
 

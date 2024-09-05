@@ -12,11 +12,6 @@ class AudioGeneratorFactory:
         [
             SambertModel("sambert-zhiqi-v1","温柔女声"),
             SambertModel("sambert-zhixiang-v1","磁性男声"),
-        ],
-        SambertModel: 
-        [
-            SambertModel("sambert-zhixiang-v11","磁性男声"),
-            SambertModel("sambert-zhiqi-v11","温柔女声"),
         ]
     }
 
