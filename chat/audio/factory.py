@@ -23,7 +23,7 @@ class AudioGeneratorFactory:
     @classmethod
     def get_generator(cls, model):
         for generator_class, model_list in cls.generators.items():
-            for modelObject in model_list:
-                if modelObject.lower() == model.name.lower():
+            for model_object in model_list:
+                if model.lower() == model_object.name.lower():
                     return generator_class(model)
         return SambertGenerationSDK("sambert-zhiqi-v1")
